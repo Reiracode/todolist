@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TODO LIST</title>
+<style>
+*,*::after,*::before{
+    box-sizing: border-box;
+    list-style:none;
+    text-decoration:none;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family: "BalooTamma2", "NotoSansCJKtc", sans-serif;
+    background-image: linear-gradient(174deg, #ffd370 2%, #ffd370 46%, #ffffff 46%, #ffffff 100%, #e8e8e8 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #333333;
+}
+
+.main{
+    width:60vw;
+    margin:20px auto;
+}
+.main label{
+    widows: 100%;
+    display: flex;
+}
+.input_item{
+    line-height: 30px;
+    font-size: 30px;
+    flex:1;
+}
+
+#additemform{
+    display: flex;
+    
+}
+#btn-outline-add{
+    background-color: black;
+    color:#fff;
+    width: 50px;
+    font-size: 30px;
+}
+
+#tbody p{
+    line-height: 30px;
+    background: #fff;
+    border-bottom: 1px solid grey;
+    flex: 1;
+}
+
+#tbody li label{
+    padding:10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.note{
+    background:#fff;
+    border-radius: 1.5rem;
+    padding: 20px;
+    box-shadow: 0px 3px 6px 1px #e4dfd4;
+    
+}
+.note_status{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+#note_ps{
+    margin:20px;
+    color:#333;
+
+}
+.note_status li{
+    padding:20px;
+    border-bottom:2px solid transparent;
+    transition: all .3s;
+    
+}
+.note_status li.active{
+    border-bottom:2px solid rgb(122, 73, 8);
+}
+input[type=checkbox]{
+    margin: 20px;
+    height: 20px;
+    width: 20px;
+}
+
+.completed{
+    text-decoration:line-through;
+}
+
+.checkbox+span{
+    display:none;
+}
+
+/* ----- */
+.checkbox.checked {
+    display: none;
+}
+.checkbox.checked + span{
+    display: inline-block;
+    text-align: center;
+    width: 20px;
+    height: 20px;
+    color: #ffd370;
+    font-size: 16px;
+    margin: 20px;
+}
+
+/* 
+.checkbox:checked {
+    display: none;
+}
+.checkbox:checked + span{
+    display: inline-block;
+    text-align: center;
+    width: 20px;
+    height: 20px;
+    color: #ffd370;
+    font-size: 16px;
+    margin: 20px;
+} */
+
+.btn-outline-dange{
+    padding: 5px 10px;
+    border:none;
+    color:#fff;
+    background-color: #333333;
+    cursor: pointer;
+}
+
+
+</style>
+
+</head>
+<body>
+    <div class="main">
+        <h1>TODO LIST</h1>
+        <label for="item">
+            <input type="text" class="input_item" id="item" placeholder="待辦事項">
+            <button id="btn-outline-add">+</button>
+        </label>
+        
+        <button id="btn-outline-reverse">reverse</button>
+        <div class="note">
+            <ul class="note_status">
+                <li class="filter_todos active" data-filter='all'>全部</li>
+                <li class="filter_todos" data-filter='false'>待完成</li>
+                <li class="filter_todos" data-filter='true'>已完成</li>
+            </ul>
+            <ul id="tbody"></ul>
+            <div id="note_ps"></div>
+        </div>
+
+    </div>
+<script>
+    var data = [];
+    var tobody = document.querySelector('#tbody');
+    var addItemBtn = document.querySelector('#btn-outline-add');
+    var reverseItemBtn = document.querySelector('#btn-outline-reverse');
+
+    function total_item() {
+        var totalitem = document.querySelectorAll('#tbody li p');
+
+        let ss= 0
+        totalitem.forEach(function(item,i){
+            if (item.classList.contains('completed')){
+                ss = ss+1;
+            }
+        })
+        var sss = document.querySelector('#note_ps');
+        sss.innerHTML = ss+"個已完成的項目"+ (totalitem.length - ss)+"個未完成的項目";
+        
+    };
+
+
+    addItemBtn.addEventListener('click',newItem);
+    reverseItemBtn.addEventListener('click',reverseItem);
+
+    render();
+    document.getElementById("item").addEventListener("keydown", function(e){
+        if(e.keyCode == 13){
+            newItem();
+        }
+    });
+
+
+  
+
+    function newItem(){
+        const itemv =(document.getElementById("item").value).trim();
+        if (!itemv) {
+            alert("You must type a todo");
+            return false;
+        } else {
+            let thisvalue = {item:itemv,checked:false}
+            console.log(thisvalue)
+            data.push(thisvalue);
+            render();
+        }
+        console.log(data)
+        document.getElementById("item").value ="";
+    }
+
+    // function editItem(e){
+    //     var id = e.target.dataset.id;
+    //     console.log(data[id])
+    //     document.getElementById("item").value =data[id].item;
+    //     removeItem(e);
+    // }
+
+
+    function reverseItem(){
+        data.reverse();
+        render();
+    }
+
+    function render(){
+        console.log(data)
+        let htmlString='';
+        data.forEach(function(item,i) {  
+            var box_checked ;
+            var p_check ;
+            if (item.checked){
+                box_checked = "checked"
+                p_check ="completed"
+            }
+            htmlString = htmlString + `<li>
+                <label><input type="checkbox" class='checkbox ${box_checked}'>
+                <span>✔</span>
+                    <p class=${p_check} data-id=${i} >${item.item}</p>
+                    <input type="button" class='btn-outline-dange' value="X">
+                    </label>
+            </li>`
+        })
+        tobody.innerHTML = htmlString;
+
+        // remove
+        // var btns = document.querySelectorAll('.btn-outline-dange');
+        // btns.forEach(function(btn){
+        //     btn.addEventListener('click',removeItem)
+        // });
+
+        //edit    
+        var editbtns = document.querySelectorAll('.btn-outline-edit');
+        editbtns.forEach(function(btn){
+            console.log(btn)
+            btn.addEventListener('click',editItem)
+        });
+
+
+        var check_li = document.querySelectorAll('#tbody li');
+        check_li.forEach(function(el){
+            el.addEventListener('click',finishedItem)
+        });
+
+        total_item()
+    }
+
+    //   function removeItem(e){
+    //     console.log()
+    //     if
+    //     var id = e.target.dataset.id;
+    //     console.log(id)
+    //     console.log(data)
+    //     data.splice(id,1);
+    //     console.log(data)
+    //     render();
+    // }
+    function finishedItem(e){
+        console.log(e)        
+        e.preventDefault();
+        const target = e.target;
+        const targetParent = target.parentElement;
+
+        if (targetParent.children[2] !== undefined){
+            const id = (targetParent.children[2].dataset.id);  
+            if (e.target.className=="btn-outline-dange"){
+                // data.splice(id,1);
+                console.log(id)
+                data.splice(id,1);
+                render();
+                return
+            }
+
+            targetParent.children[2].classList.toggle('completed');
+            targetParent.children[0].classList.toggle('checked');
+            
+            
+            if (targetParent.children[0].classList.contains('checked')){
+                data[id].checked = true;
+            }else{
+                data[id].checked = false;
+            }
+        }
+        total_item();
+        
+    }
+    
+
+    const filterOptions = [...document.querySelectorAll('.filter_todos')];
+    filterOptions.forEach(dom => dom.addEventListener('click', filterTodos));
+
+    function filterTodos(e) {
+        // li active
+        e.currentTarget.classList.add('active');
+        for (let sibling of e.currentTarget.parentNode.children) {
+            if (sibling !== e.currentTarget) {
+                var siblingtag = sibling.dataset['filter'];
+                sibling.classList.remove('active')
+            }
+        };
+
+        var targetID = e.currentTarget.dataset['filter'];
+        // console.log(targetID)
+        const todos = document.querySelectorAll('#tbody li p');
+        todos.forEach(function (todoEl) {
+            // console.log(todoEl)
+            const tgt = todoEl.parentElement;
+            // console.log(tgt)
+            switch (targetID) {
+                case "all":
+                    tgt.style.display = "flex"
+                    break;
+                case "true":
+                    if (todoEl.classList.contains("completed")) {
+                        tgt.style.display = "flex"
+                    } else {
+                        tgt.style.display = "none"
+                    }
+                    break;
+                case "false":
+                    if (todoEl.classList.contains("completed")) {
+                        tgt.style.display = "none"
+                    } else {
+                        tgt.style.display = "flex"
+                    }
+                    break;
+                }
+        }) 
+
+        total_item();
+    }
+</script>
+    
+</body>
+</html>
